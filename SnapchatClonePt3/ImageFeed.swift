@@ -121,27 +121,24 @@ func getPosts(user: CurrentUser, completion: @escaping ([Post]?) -> Void) {
         (snapshot) in
         if snapshot.exists() {
             if let postsDict = snapshot.value as? [String:AnyObject] {
-                dbRef.child("\(firUsersNode)/\(user.id)/\(firReadPostsNode)").observeSingleEvent(of: .value, with: {
-                    (snapshot) in
-                    if snapshot.exists() {
-                        if let readPostsIdsDict = snapshot.value as? [String:AnyObject] {
-                            for (key, value) in postsDict {
-                                let read = readPostsIdsDict[key] != nil
-                                let contents = value as! Dictionary<String, AnyObject>
-                                let post = Post(id: key, username: contents["username"] as! String, postImagePath: contents["postImagePath"] as! String, thread: contents["thread"] as! String, dateString: contents["date"] as! String, read: read)
-                                postArray.append(post)
-                            }
-                            completion(postArray)
+                user.getReadPostIDs(completion: {(postIDs) in
+                    if let postIDs = postIDs as [String]? {
+                        for (key, value) in postsDict {
+                            let read = postIDs.contains(key)
+                            let contents = value as! Dictionary<String, AnyObject>
+                            let post = Post(id: key, username: contents[firUsernameNode] as! String, postImagePath: contents[firImagePathNode] as! String, thread: contents[firThreadNode] as! String, dateString: contents[firDateNode] as! String, read: read)
+                            postArray.append(post)
                         }
+                        completion(postArray)
                     }
                 })
-
+            } else {
+                completion(nil)
             }
         } else {
             completion(nil)
         }
     })
-
 }
 
 func getDataFromPath(path: String, completion: @escaping (Data?) -> Void) {
