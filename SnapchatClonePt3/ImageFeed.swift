@@ -84,14 +84,13 @@ func store(data: Data, toPath path: String) {
     // YOUR CODE HERE
     storageRef.child(path).put(data, metadata:nil){
         (metadata, error) in
-        guard let metadata = metadata else {
+        guard metadata != nil else {
             return
         }
         if error != nil {
             print (error)
         }
     }
-    
 }
 
 
