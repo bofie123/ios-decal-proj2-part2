@@ -41,8 +41,20 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     @IBAction func didAttemptLogin(_ sender: UIButton) {
         guard let emailText = emailField.text else { return }
         guard let passwordText = passwordField.text else { return }
-        
         // YOUR CODE HERE
+        FIRAuth.auth()?.signIn(withEmail: emailText, password: passwordText, completion: {
+            (user, error) in
+            if error != nil {
+                let errorAlert: UIAlertController = UIAlertController(title: "Error", message: "Sign in failed, try again!", preferredStyle: .alert)
+                let cancelAction: UIAlertAction = UIAlertAction(title: "Cancel", style: .cancel) { action -> Void in
+                }
+                errorAlert.addAction(cancelAction)
+                self.present(errorAlert, animated: true, completion: nil)
+            } else {
+                self.performSegue(withIdentifier: "loginToMain", sender: self)
+            }
+        })
+        
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
